@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.env
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Project runtime data (created on scan)
+data/*.db
+data/*.db-journal
+
+# Keep data/ dir itself tracked via .gitkeep
+!data/.gitkeep
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

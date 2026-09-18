@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Results · Vulnerability Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <span class="brand">vuln<span class="brand-accent">scan</span></span>
+            <span class="tagline">rule-based scanner for authorized test targets</span>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="scan-list">
+            <h2 class="panel-title">Scans</h2>
+            {% if scans %}
+                <ul class="scan-items">
+                {% for s in scans %}
+                    <li>
+                        <a class="scan-item {% if selected_scan and selected_scan.id == s.id %}active{% endif %}"
+                           href="{{ url_for('scan_detail', scan_id=s.id) }}">
+                            <span class="scan-target">{{ s.target_url }}</span>
+                            <span class="scan-meta">{{ s.started_at[:19] }} · {{ s.pages_crawled }} pages</span>
+                        </a>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty">No scans yet. Run:<br><code>python -m scanner.cli --url &lt;target&gt;</code></p>
+            {% endif %}
+        </aside>
+
+        <main class="detail">
+            {% if selected_scan %}
+                <div class="detail-header">
+                    <h1>{{ selected_scan.target_url }}</h1>
+                    <div class="detail-stats">
+                        <span>{{ selected_scan.pages_crawled }} pages crawled</span>
+                        <span>{{ selected_scan.surfaces_tested }} surfaces tested</span>
+                        <span>{{ findings|length }} findings</span>
+                    </div>
+                </div>
+
+                {% if findings %}
+                <div class="findings">
+                    {% for f in findings %}
+                    <article class="finding sev-{{ f.severity|lower }}">
+                        <div class="finding-head">
+                            <span class="sev-badge">{{ f.severity }}</span>
+                            <span class="vuln-type">{{ f.vuln_type|replace('_', ' ') }}</span>
+                            <span class="status {% if f.confirmed %}confirmed{% else %}review{% endif %}">
+                                {{ 'confirmed' if f.confirmed else 'needs manual review' }}
+                            </span>
+                        </div>
+                        <dl class="finding-body">
+                            <dt>url</dt><dd>{{ f.url }}</dd>
+                            <dt>parameter</dt><dd>{{ f.parameter }}</dd>
+                            <dt>evidence</dt><dd>{{ f.evidence }}</dd>
+                        </dl>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <p class="empty">No issues were flagged by the automated checks for this scan.</p>
+                {% endif %}
+            {% else %}
+                <div class="placeholder">
+                    <p>Select a scan on the left to view its findings.</p>
+                </div>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>
